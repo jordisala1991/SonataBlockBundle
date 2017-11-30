@@ -21,6 +21,7 @@ use Sonata\BlockBundle\Model\BlockInterface;
 use Sonata\CoreBundle\Model\Metadata;
 use Sonata\CoreBundle\Validator\ErrorElement;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
+use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -163,11 +164,12 @@ class MenuBlockService extends AbstractAdminBlockService
             'required' => false,
         ];
 
-        $choices = $this->menuRegistry->getAliasNames();
+        // choice_as_value options is not needed in SF 3.0+
+        if (method_exists(FormTypeInterface::class, 'setDefaultOptions')) {
+            $choiceOptions['choices_as_values'] = true;
+        }
 
-        $choices = array_flip($choices);
-
-        $choiceOptions['choices'] = $choices;
+        $choiceOptions['choices'] = array_flip($this->menuRegistry->getAliasNames());
 
         return [
             ['title', 'text', ['required' => false]],
